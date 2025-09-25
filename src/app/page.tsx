@@ -1,8 +1,10 @@
-import Image from "next/image";
+"use client";
 
-import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export default async function Home() {
+export default function Home() {
+  const [email, setEmail] = useState("");
   return (
     <main className="flex min-h-screen items-center justify-center overflow-hidden p-6">
       <div className="absolute inset-0">
@@ -11,51 +13,60 @@ export default async function Home() {
 
       <div className="relative z-20 mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
         <div className="mb-10 flex items-center justify-center gap-6">
-          <Image
-            src="/nextjs.svg"
-            alt="Next.js Logo"
-            width={100}
-            height={100}
-          />
+          <div className="text-8xl">🦺</div>
         </div>
 
         <h1 className="mb-4 font-extrabold text-gray-900">
           Welcome to Workflows Starter
         </h1>
 
-        <p className="mb-8 text-gray-600 text-lg">
-          This starter is powered by{" "}
-          <Link className="font-bold underline" href="https://nextjs.org">
-            Next.js
-          </Link>
-          , the most popular React Framework, preconfigured with batteries
-          included tools like{" "}
-          <Link className="font-bold underline" href="https://tailwindcss.com">
-            Tailwind
-          </Link>
-          ,{" "}
-          <Link className="font-bold underline" href="https://ui.shadcn.com">
-            shadcn/ui
-          </Link>
-          ,{" "}
-          <Link className="font-bold underline" href="https://biomejs.dev">
-            Biome
-          </Link>
-          , and{" "}
-          <Link className="font-bold underline" href="https://vitest.dev">
-            Vitest
-          </Link>
-          .
+        <p className="mb-16 text-gray-600 text-lg">
+          An example workflow Next.js application for handling async processes.
         </p>
 
-        <a href="https://github.com/willsather/nextjs-starter">
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-black px-4 py-2 font-medium text-sm text-white ring-offset-background transition-colors hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-          >
-            Learn More
-          </button>
-        </a>
+        <div className="mb-6 w-full md:max-w-sm">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-500 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={async () => {
+            if (!email.trim()) {
+              toast.error("Please enter an email address");
+              return;
+            }
+
+            try {
+              const response = await fetch("/api/signup", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email: email.trim(),
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error("Failed to start workflow");
+              }
+
+              toast.success("Workflow started");
+              setEmail("");
+            } catch (error) {
+              toast.error("Workflow failed");
+            }
+          }}
+          className="mx-3 inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-black px-4 py-2 font-medium text-sm text-white ring-offset-background transition-colors hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 md:max-w-sm"
+        >
+          Start workflow
+        </button>
       </div>
     </main>
   );
